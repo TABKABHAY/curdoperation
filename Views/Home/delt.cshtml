@@ -1,0 +1,18 @@
+﻿@model curdoperation.Models.Curd
+@{
+    Layout = null;
+}
+
+<form asp-controller="Home" asp-action="Delt">
+    <input type="hidden" asp-for="Newid" />
+    <input type="hidden" asp-for="Firstname"/>
+    <input type="hidden" asp-for="Lastname"/>
+    <input type="hidden" asp-for="Birthdate"/>
+    <input type="hidden" asp-for="Email"/>
+    <input type="hidden" asp-for="Mobileno" />
+    <p>Are you sure you want to delete these Records?</p>
+    <p class="text-warning"><small>This action cannot be undone.</small></p>
+    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
+    <button asp-action="Delt" type="submit" class="btn btn-danger" value="Delete">DELET</button>
+</form>
+

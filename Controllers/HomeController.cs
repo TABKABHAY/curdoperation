@@ -24,12 +24,17 @@ namespace curdoperation.Controllers
             _logger = logger;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            var crd = db.Curds.ToList();
+            List<curdoperation.Models.Curd> result = new List<Curd>();
+            foreach (Curd temp in crd)
+            {
+                result.Add(temp);
+            }
+            return View(result);
         }
-
-        
         [HttpPost]
         public IActionResult Newent(Curd crd)
         {
@@ -54,28 +59,58 @@ namespace curdoperation.Controllers
         [HttpPost]
         public IActionResult UpdateCurd(Curd curd)
         {
-            int? Id = HttpContext.Session.GetInt32("Newid");
-            if (Id == null)
+            Curd u = db.Curds.FirstOrDefault(x=> x.Newid == curd.Newid);
+            if (u != null)
             {
-                Id = Convert.ToInt32(Request.Cookies["Newid"]);
+                u.Firstname = curd.Firstname;
+                u.Lastname = curd.Lastname;
+                u.Mobileno = curd.Mobileno;
+                u.Zodiac = curd.Zodiac;
+                u.Birthdate = curd.Birthdate;
+                u.Email = curd.Email;
+                var result = db.Curds.Update(u);
+                db.SaveChanges();
+                return RedirectToAction("Index", "Home");
             }
-            Curd u = db.Curds.FirstOrDefault(x => x.Newid == Id);
-            u.Firstname = curd.Firstname;
-            u.Lastname = curd.Lastname;
-            u.Mobileno = curd.Mobileno;
-            u.Zodiac = curd.Zodiac;
-            u.Birthdate = curd.Birthdate;
-            u.Email = curd.Email;
-
-            var result = db.Curds.Update(u);
-            db.SaveChanges();
-            if (result != null)
+            else
             {
-                return Ok(Json("true"));
+                _auc.Add(curd);
+                _auc.SaveChanges();
+                return RedirectToAction("Index", "Home");
             }
-
-            return Ok(Json("false"));
         }
+
+        public IActionResult adddata(int id = 0)
+        {
+            if (id == 0)
+            {
+                return View();
+            }
+            else
+            {
+                Curd obj = db.Curds.Where(x => x.Newid == id).FirstOrDefault();
+                return View(obj);
+            }
+        }
+        [HttpGet]
+        public IActionResult delt(int id)
+        {
+            Curd obj = db.Curds.Where(x => x.Newid == id).FirstOrDefault();
+            return View(obj);
+        }
+
+
+
+        [HttpPost]
+        public IActionResult Delt(Curd del)
+        {
+
+            Curd obj = db.Curds.Where(x => x.Newid == del.Newid).FirstOrDefault();
+            db.Curds.Remove(obj);
+            db.SaveChanges();
+            return RedirectToAction("Index", "Home");
+        }
+
         public IActionResult Privacy()
         {
             return View();
