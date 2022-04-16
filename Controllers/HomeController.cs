@@ -25,7 +25,7 @@ namespace curdoperation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index2()
         {
             var crd = db.Curds.ToList();
             List<curdoperation.Models.Curd> result = new List<Curd>();
@@ -35,6 +35,34 @@ namespace curdoperation.Controllers
             }
             return View(result);
         }
+
+
+        public IActionResult Index( int pageNumber=1,int pageSize=1)
+        {
+            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
+            var crd = db.Curds.ToList();
+            List<curdoperation.Models.Curd> result = new List<Curd>();
+            foreach (Curd temp in crd)
+            {
+                result.Add(temp);
+            }
+            return View(result);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         [HttpPost]
         public IActionResult Newent(Curd crd)
         {
@@ -88,6 +116,7 @@ namespace curdoperation.Controllers
             }
             else
             {
+
                 Curd obj = db.Curds.Where(x => x.Newid == id).FirstOrDefault();
                 return View(obj);
             }
