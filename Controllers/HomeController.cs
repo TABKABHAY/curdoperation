@@ -1,4 +1,5 @@
 ﻿using curdoperation.Models;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -87,6 +88,7 @@ namespace curdoperation.Controllers
         [HttpPost]
         public IActionResult UpdateCurd(Curd curd)
         {
+            string s = "Edit user";
             Curd u = db.Curds.FirstOrDefault(x=> x.Newid == curd.Newid);
             if (u != null)
             {
@@ -133,7 +135,6 @@ namespace curdoperation.Controllers
         [HttpPost]
         public IActionResult Delt(Curd del)
         {
-
             Curd obj = db.Curds.Where(x => x.Newid == del.Newid).FirstOrDefault();
             db.Curds.Remove(obj);
             db.SaveChanges();
@@ -143,12 +144,6 @@ namespace curdoperation.Controllers
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
