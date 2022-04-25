@@ -50,20 +50,6 @@ namespace curdoperation.Controllers
             return View(result);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         [HttpPost]
         public IActionResult Newent(Curd crd)
         {
@@ -88,10 +74,10 @@ namespace curdoperation.Controllers
         [HttpPost]
         public IActionResult UpdateCurd(Curd curd)
         {
-            string s = "Edit user";
             Curd u = db.Curds.FirstOrDefault(x=> x.Newid == curd.Newid);
             if (u != null)
             {
+                
                 u.Firstname = curd.Firstname;
                 u.Lastname = curd.Lastname;
                 u.Mobileno = curd.Mobileno;
@@ -114,10 +100,12 @@ namespace curdoperation.Controllers
         {
             if (id == 0)
             {
+                ViewBag.Message = "Adduser";
                 return View();
             }
             else
             {
+                ViewBag.Message = "Edit";
 
                 Curd obj = db.Curds.Where(x => x.Newid == id).FirstOrDefault();
                 return View(obj);
