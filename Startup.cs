@@ -26,6 +26,7 @@ namespace curdoperation
         {
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddDbContext<masterContext>(options => options.UseSqlServer(Configuration.GetConnectionString("connection")));
             services.AddSession();
             services.AddMvc();

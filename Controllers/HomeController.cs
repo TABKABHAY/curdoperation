@@ -1,52 +1,59 @@
-﻿using curdoperation.Models;
+﻿using curdoperation.Context;
+using curdoperation.Models;
+using Dapper;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace curdoperation.Controllers
 {
+  
     public class HomeController : Controller
     {
+        private readonly IDbConnection db2;
+       
+        Adio_CRUD_DAL dbContex = new Adio_CRUD_DAL();
+
         readonly masterContext _auc;
         readonly masterContext db = new masterContext();
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(masterContext auc, ILogger<HomeController> logger)
+        private readonly IConfiguration configuration;
+        public HomeController(IConfiguration config ,masterContext auc, ILogger<HomeController> logger, IConfiguration configuration)
         {
+             db2 = new SqlConnection(configuration.GetConnectionString("connection"));
 
+            configuration = config;
             _auc = auc;
             _logger = logger;
         }
 
+
+        //[HttpGet]
+        //public IActionResult Index()
+        //{
+        //    var sql = "SELECT * FROM Curd";
+        //    List<Curd> result = db2.Query<Curd>(sql).ToList();
+        //    return View(result);
+        //}
+
+
         [HttpGet]
-        public IActionResult Index2()
+        public IActionResult Index()
         {
-            var crd = db.Curds.ToList();
-            List<curdoperation.Models.Curd> result = new List<Curd>();
-            foreach (Curd temp in crd)
-            {
-                result.Add(temp);
-            }
-            return View(result);
-        }
+            var getdata = new Adio_CRUD_DAL();
 
-
-        public IActionResult Index( int pageNumber=1,int pageSize=1)
-        {
-            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
-            var crd = db.Curds.ToList();
-            List<curdoperation.Models.Curd> result = new List<Curd>();
-            foreach (Curd temp in crd)
-            {
-                result.Add(temp);
-            }
+            List<Curd> result = dbContex.GetAllStudent().ToList();
             return View(result);
         }
 
@@ -71,13 +78,152 @@ namespace curdoperation.Controllers
 
         }
 
+
         [HttpPost]
-        public IActionResult UpdateCurd(Curd curd)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int id)
+        {
+            if (id == null) return NotFound();
+            Curd curd = dbContex.GetStudentById(id);
+            if(curd == null)
+            {
+                return NotFound();
+            }
+            return View(curd);
+
+        }
+
+
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult UpdateCurd(int sd, Curd curd)
+        //{
+        //    try
+        //    {
+        //        sd = curd.Newid;
+        //        if (sd != null)
+        //        {
+
+        //            var ID = curd.Newid;
+
+        //            var sql = "UPDATE Curd SET firstname = @Firstname, lastname = @Lastname, Birthdate = @Birthdate, zodiac = @Zodiac ," +
+        //                "mobileno = @Mobileno, email= @Email WHERE newid = @Newid";
+
+        //            db2.Execute(sql, curd);
+
+        //            return View("Index");
+        //        }
+        //        return View("Index");
+        //    }
+
+        //    catch (Exception cd)
+        //    {
+        //        return RedirectToAction("Index", "Home");
+        //    }
+
+        //    return View("Index");
+        //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult UpdateCurd(int sd ,Curd curd)
+        //{
+        //    try
+        //    {
+        //        sd = curd.Newid;
+        //        if (sd != null)
+        //        {
+
+        //            var ID = curd.Newid;
+
+        //            var sql = "UPDATE Curd SET firstname = @Firstname, lastname = @Lastname, Birthdate = @Birthdate, zodiac = @Zodiac ," +
+        //                "mobileno = @Mobileno, email= @Email WHERE newid = @Newid";
+
+        //            db2.Execute(sql, curd);
+
+        //            return View("Index");
+        //        }
+        //        return View("Index");
+        //    }
+
+        //    catch (Exception cd)
+        //    {
+        //        return RedirectToAction("Index", "Home");
+        //    }
+
+        //    return View("Index");
+        //}
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateCurd(int sd, [Bind] Curd curd)
+        {
+
+            try
+            {
+
+                if (sd != null)
+                {
+                    dbContex.CreateStudent(curd);
+                    return RedirectToAction("Index", "Home");
+
+                }
+
+
+                //else
+                //{
+                //    sd = curd.Newid;
+                //    curd.Newid = sd;
+                //    dbContex.UpdateStudent(curd);
+                //    return RedirectToAction("Index", "Home");
+
+
+                //}
+                return View("Index");
+
+            }
+
+            catch (Exception cd)
+            {
+
+                dbContex.UpdateStudent(curd);
+                return RedirectToAction("Index", "Home");
+
+                db.SaveChanges();
+                return RedirectToAction("Index", "Home");
+            }
+
+
+
+        }
+
+        [HttpPost]
+        public IActionResult UiipdateCurd(Curd curd)
         {
             Curd u = db.Curds.FirstOrDefault(x=> x.Newid == curd.Newid);
             if (u != null)
             {
-                
                 u.Firstname = curd.Firstname;
                 u.Lastname = curd.Lastname;
                 u.Mobileno = curd.Mobileno;
@@ -119,14 +265,41 @@ namespace curdoperation.Controllers
         }
 
 
+        //[HttpPost]
+        //public IActionResult Delt(Curd id)
+        //{
+        //    try
+        //    {
+        //        var sql = "DELETE FROM Curd WHERE newid = @Newid";
+
+        //       db2.Execute(sql, new { @Id = id });
+
+        //        return RedirectToAction("Index");
+        //    }
+
+        //    catch (Exception cd)
+        //    {
+        //        return View("Index");
+        //    }
+        //}
+
+
+
 
         [HttpPost]
+
         public IActionResult Delt(Curd del)
         {
-            Curd obj = db.Curds.Where(x => x.Newid == del.Newid).FirstOrDefault();
-            db.Curds.Remove(obj);
-            db.SaveChanges();
-            return RedirectToAction("Index", "Home");
+            try
+            {
+                dbContex.DeleteStudent(del.Newid);
+                return RedirectToAction("Index");
+            }
+            catch (Exception cd)
+            {
+                return View();
+            }
+
         }
 
         public IActionResult Privacy()
